@@ -130,13 +130,14 @@ npm exec nx -- g @component-hub/plugin:component date-range-picker \
 
 The generated package is placed under `packages/components`, starts at the
 unreleased version `0.0.0`, and includes Component Hub metadata, tests, and an
-Autodocs-enabled Storybook showcase.
+Autodocs-enabled showcase story. ESLint, TypeScript defaults, and Storybook are
+configured centrally rather than copied into every component.
 
 Useful validation commands:
 
 ```bash
 npm exec nx -- run-many -t build test lint --all
-npm exec nx -- build-storybook date-range-picker
+npm exec nx -- build-storybook storybook-host
 ```
 
 ## License

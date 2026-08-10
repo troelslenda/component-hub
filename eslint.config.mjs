@@ -4,6 +4,8 @@ export default [
   ...nx.configs['flat/base'],
   ...nx.configs['flat/typescript'],
   ...nx.configs['flat/javascript'],
+  ...nx.configs['flat/angular'],
+  ...nx.configs['flat/angular-template'],
   {
     ignores: [
       '**/dist',
@@ -13,9 +15,31 @@ export default [
     ],
   },
   {
-    files: ['**/*.stories.ts'],
+    files: ['packages/components/**/*.ts'],
     rules: {
-      '@nx/dependency-checks': 'off',
+      '@angular-eslint/directive-selector': [
+        'error',
+        { type: 'attribute', prefix: 'hub', style: 'camelCase' },
+      ],
+      '@angular-eslint/component-selector': [
+        'error',
+        { type: 'element', prefix: 'hub', style: 'kebab-case' },
+      ],
+    },
+  },
+  {
+    files: ['packages/components/*/package.json'],
+    rules: {
+      '@nx/dependency-checks': [
+        'error',
+        {
+          ignoredDependencies: ['@storybook/angular'],
+          ignoredFiles: [
+            '{projectRoot}/eslint.config.{js,cjs,mjs,ts,cts,mts}',
+            '{projectRoot}/**/*.stories.ts',
+          ],
+        },
+      ],
     },
   },
   {

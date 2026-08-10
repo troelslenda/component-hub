@@ -1,0 +1,10 @@
+{
+  "id": "notification-banner",
+  "name": "Notification Banner",
+  "packageName": "@organization/notification-banner",
+  "status": "poc",
+  "owners": ["team-design-system"],
+  "description": "Displays an important notification.",
+  "figmaUrl": null,
+  "releaseState": "unreleased"
+}

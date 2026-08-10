@@ -1,7 +1,7 @@
 {
-  "name": "date-range-picker",
+  "name": "notification-banner",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/components/date-range-picker/src",
+  "sourceRoot": "packages/components/notification-banner/src",
   "prefix": "hub",
   "projectType": "library",
   "release": {
@@ -17,8 +17,8 @@
       "executor": "@nx/angular:package",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "project": "packages/components/date-range-picker/ng-package.json",
-        "tsConfig": "packages/components/date-range-picker/tsconfig.lib.json"
+        "project": "packages/components/notification-banner/ng-package.json",
+        "tsConfig": "packages/components/notification-banner/tsconfig.lib.json"
       }
     },
     "nx-release-publish": {

@@ -32,7 +32,23 @@ describe('component generator', () => {
       tree.read('packages/components/date-range-picker/package.json', 'utf-8'),
     ).toContain('"version": "0.0.0"');
     expect(
-      tree.read('packages/components/date-range-picker/component.json', 'utf-8'),
+      tree.read(
+        'packages/components/date-range-picker/component.json',
+        'utf-8',
+      ),
     ).toContain('"releaseState": "unreleased"');
+    expect(config.targets?.storybook).toBeUndefined();
+    expect(config.targets?.lint?.executor).toBe('@nx/eslint:lint');
+    expect(
+      tree.exists('packages/components/date-range-picker/eslint.config.mjs'),
+    ).toBe(false);
+    expect(
+      tree.exists(
+        'packages/components/date-range-picker/tsconfig.lib.prod.json',
+      ),
+    ).toBe(false);
+    expect(
+      tree.exists('packages/components/date-range-picker/.storybook/main.ts'),
+    ).toBe(false);
   });
 });

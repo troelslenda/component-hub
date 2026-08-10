@@ -1,0 +1,56 @@
+{
+  "name": "storybook-host",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "tools/storybook-host/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": ["type:tooling", "scope:shared"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "storybook": {
+      "executor": "@storybook/angular:start-storybook",
+      "options": {
+        "port": 4400,
+        "configDir": "tools/storybook-host/.storybook",
+        "browserTarget": "storybook-host:build-storybook",
+        "compodoc": false
+      },
+      "configurations": {
+        "ci": {
+          "quiet": true
+        }
+      }
+    },
+    "build-storybook": {
+      "executor": "@storybook/angular:build-storybook",
+      "outputs": ["{options.outputDir}"],
+      "options": {
+        "outputDir": "dist/storybook/storybook-host",
+        "configDir": "tools/storybook-host/.storybook",
+        "browserTarget": "storybook-host:build-storybook",
+        "compodoc": false
+      },
+      "configurations": {
+        "ci": {
+          "quiet": true
+        }
+      }
+    },
+    "static-storybook": {
+      "executor": "@nx/web:file-server",
+      "dependsOn": ["build-storybook"],
+      "options": {
+        "buildTarget": "storybook-host:build-storybook",
+        "staticFilePath": "dist/storybook/storybook-host",
+        "spa": true
+      },
+      "configurations": {
+        "ci": {
+          "buildTarget": "storybook-host:build-storybook:ci"
+        }
+      }
+    }
+  }
+}

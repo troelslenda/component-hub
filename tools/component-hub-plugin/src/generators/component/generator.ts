@@ -4,16 +4,14 @@ import {
   joinPathFragments,
   names,
   readJson,
+  readProjectConfiguration,
   runTasksInSerial,
   type Tree,
   updateJson,
+  updateProjectConfiguration,
   writeJson,
 } from '@nx/devkit';
-import {
-  libraryGenerator,
-  storybookConfigurationGenerator,
-  UnitTestRunner,
-} from '@nx/angular/generators';
+import { libraryGenerator, UnitTestRunner } from '@nx/angular/generators';
 import type { ComponentGeneratorSchema } from './schema';
 
 export async function componentGenerator(
@@ -36,21 +34,13 @@ export async function componentGenerator(
     importPath: packageName,
     standalone: true,
     flat: true,
+    prefix: 'hub',
     displayBlock: true,
     style: 'scss',
     strict: true,
-    linter: 'eslint',
+    linter: 'none',
     unitTestRunner: UnitTestRunner.VitestAngular,
     tags: `type:component,scope:shared,maturity:${status},publishable`,
-    skipFormat: true,
-  });
-
-  const storybookTask = await storybookConfigurationGenerator(tree, {
-    project: normalizedName,
-    generateStories: false,
-    configureStaticServe: true,
-    interactionTests: false,
-    linter: 'eslint',
     skipFormat: true,
   });
 
@@ -79,19 +69,54 @@ export async function componentGenerator(
     releaseState: 'unreleased',
   });
 
-  const eslintConfigPath = joinPathFragments(projectRoot, 'eslint.config.mjs');
-  const eslintConfig = tree.read(eslintConfigPath, 'utf-8');
-  if (eslintConfig) {
-    const dependencyCheckConfig = eslintConfig.replace(
-      "ignoredFiles: ['{projectRoot}/eslint.config.{js,cjs,mjs,ts,cts,mts}'],",
-      "ignoredDependencies: ['@storybook/angular'],\n          ignoredFiles: [\n            '{projectRoot}/eslint.config.{js,cjs,mjs,ts,cts,mts}',\n            '{projectRoot}/**/*.stories.ts',\n          ],",
-    );
-    const endOfConfig = dependencyCheckConfig.lastIndexOf('];');
-    tree.write(
-      eslintConfigPath,
-      `${dependencyCheckConfig.slice(0, endOfConfig)},\n  {\n    files: ['**/*.stories.ts'],\n    rules: { '@nx/dependency-checks': 'off' },\n  },\n${dependencyCheckConfig.slice(endOfConfig)}`,
-    );
+  writeJson(tree, joinPathFragments(projectRoot, 'tsconfig.json'), {
+    extends: '../../../tools/config/tsconfig.angular-component.json',
+    files: [],
+    include: [],
+    references: [
+      { path: './tsconfig.lib.json' },
+      { path: './tsconfig.spec.json' },
+    ],
+  });
+  writeJson(tree, joinPathFragments(projectRoot, 'tsconfig.lib.json'), {
+    extends: './tsconfig.json',
+    compilerOptions: {
+      outDir: '../../../dist/out-tsc',
+      declaration: true,
+      declarationMap: false,
+      inlineSources: true,
+      types: [],
+    },
+    include: ['src/**/*.ts'],
+    exclude: [
+      'src/**/*.spec.ts',
+      'src/**/*.test.ts',
+      '**/*.stories.ts',
+      '**/*.stories.js',
+    ],
+  });
+  writeJson(tree, joinPathFragments(projectRoot, 'tsconfig.spec.json'), {
+    extends: './tsconfig.json',
+    compilerOptions: {
+      outDir: '../../../dist/out-tsc',
+      types: ['vitest/globals'],
+    },
+    include: ['src/**/*.ts', 'src/**/*.d.ts'],
+  });
+  tree.delete(joinPathFragments(projectRoot, 'tsconfig.lib.prod.json'));
+  tree.delete(joinPathFragments(projectRoot, 'eslint.config.mjs'));
+
+  const project = readProjectConfiguration(tree, normalizedName);
+  const buildTarget = project.targets?.build;
+  if (buildTarget) {
+    delete buildTarget.defaultConfiguration;
+    delete buildTarget.configurations;
   }
+  project.targets = {
+    ...project.targets,
+    lint: { executor: '@nx/eslint:lint' },
+  };
+  updateProjectConfiguration(tree, normalizedName, project);
 
   const templateOptions = {
     ...options,
@@ -116,7 +141,7 @@ export async function componentGenerator(
 
   await formatFiles(tree);
 
-  return runTasksInSerial(libraryTask, storybookTask);
+  return runTasksInSerial(libraryTask);
 }
 
 export default componentGenerator;
