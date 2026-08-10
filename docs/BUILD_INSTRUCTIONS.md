@@ -215,12 +215,59 @@ Do NOT rely on Storybook for package versioning.
 
 Each component needs independent semantic versioning.
 
+## Initial Component Lifecycle
+
+Creating a component and releasing its first usable version are separate actions.
+
+When a user selects **Create Component**, the Hub should:
+
+1. Run the canonical Nx generator. The generator may compose Angular/Nx schematics, but it must also create the package metadata, Component Hub metadata, showcase story, tests, and build configuration.
+2. Commit the generated component skeleton to `main` with version `0.0.0`.
+3. Make the new component visible in the Hub as **Unreleased**.
+4. Automatically create an initialization workspace, using a name such as `<component-name>-init`.
+5. Create the corresponding branch, draft pull request, and workspace preview.
+
+Version `0.0.0` is a source-tree placeholder, not a release. Publishing automation must always ignore it, and it must never be published to the package registry.
+
+The initialization workspace should change the component version to `0.1.0` when its first usable implementation is ready. Merging that workspace to `main` triggers publication of the component's first immutable registry release.
+
+The initial lifecycle is therefore:
+
+```text
+Create Component
+      ↓
+Generate and commit 0.0.0 skeleton to main
+      ↓
+Create <component-name>-init workspace and draft PR
+      ↓
+Implement and preview the component
+      ↓
+Set version to 0.1.0
+      ↓
+Merge to main
+      ↓
+Publish 0.1.0 to the registry
+```
+
+Before the first release, the component has no stable registry version or stable preview. The Hub should distinguish the source version from the latest published release, for example:
+
+```json
+{
+  "sourceVersion": "0.0.0",
+  "latestRelease": null,
+  "releaseState": "unreleased"
+}
+```
+
+After the initialization workspace is merged, both the source version and latest release are `0.1.0`, and the release state is `released`.
+
 Recommended initial direction:
 
 * npm-compatible packages
 * SemVer
-* Changesets or a similar release mechanism
-* private registry for the prototype if necessary
+* GitHub Packages as the initial prototype registry
+* automated publishing from GitHub Actions
+* release triggered by a version change reaching `main`
 
 Consumers should be able to use:
 
@@ -232,9 +279,94 @@ Consumers should be able to use:
 
 while development of `1.3.0` or `2.0.0` continues independently.
 
-For the prototype, it is acceptable to use a lightweight private registry such as Verdaccio if access to the organization's existing registry is unavailable.
+For the prototype, package installation by downstream applications is not required.
 
-Registry integration must be abstracted enough that the prototype registry can later be replaced.
+The purpose of the registry integration in the first vertical slice is to demonstrate that a component has an immutable release history outside its source tree.
+
+For example:
+
+```text
+date-range-picker
+
+0.3.0
+0.2.0
+0.1.0
+```
+
+The Hub should be able to read and display this release history.
+
+GitHub Packages is the preferred registry for the initial prototype because the project already uses GitHub as its source and workflow platform.
+
+Registry integration must still remain behind an abstraction so GitHub Packages can later be replaced by an organization's existing artifact registry.
+
+Verdaccio may be used as an optional local or offline development registry, but it should not be the default prototype architecture.
+
+---
+
+# Release Model
+
+Publishing a component should be an automated consequence of merging a new version to `main`.
+
+Changing the version of a component on a workspace or feature branch must NOT publish a package.
+
+The intended flow is:
+
+```text
+Modify component
+      ↓
+Bump version
+      ↓
+Open / update pull request
+      ↓
+Merge to main
+      ↓
+GitHub Action detects new version
+      ↓
+Build + test package
+      ↓
+Publish to GitHub Packages
+      ↓
+Component Hub discovers new release
+```
+
+Each component owns its own version.
+
+For example:
+
+```json
+{
+  "name": "@organization/date-range-picker",
+  "version": "1.5.0"
+}
+```
+
+When `1.5.0` reaches `main`, CI should compare it with the versions already published for that package.
+
+CI must skip version `0.0.0`, which is reserved for generated, unreleased component skeletons.
+
+If `1.5.0` does not exist, publish it.
+
+If the version already exists, do nothing.
+
+Publishing should therefore be idempotent and driven by repository state rather than requiring a developer to manually run a release command.
+
+For the first prototype it is acceptable for developers to edit the version directly.
+
+Longer term, Component Hub should expose this as a domain-level action:
+
+```text
+Release component
+
+[ Patch ] [ Minor ] [ Major ]
+```
+
+The Hub can then create the version change through the normal Git / pull request workflow.
+
+The merge remains the point at which the release becomes real.
+
+This creates an important distinction:
+
+**Workspace versions are proposed. Releases are immutable.**
 
 ---
 
@@ -291,15 +423,17 @@ Examples:
 
 User enters basic information.
 
-The platform runs the appropriate Nx generator and creates the necessary Git changes.
+The platform runs the canonical Nx generator, commits the generated `0.0.0` skeleton to `main`, and automatically creates the component's initialization workspace.
 
 Potential outcome:
 
-* branch
 * generated component package
 * metadata
 * showcase story
-* pull request
+* unreleased component record in the Hub
+* `<component-name>-init` branch
+* draft pull request
+* workspace preview
 
 ### Create Workspace
 
@@ -474,15 +608,31 @@ Therefore:
 
 Create a registry adapter/interface.
 
-For prototype development:
+For the initial prototype:
 
-* use Verdaccio or another lightweight registry if needed
+* use GitHub Packages
+* publish packages through GitHub Actions
+* use the registry to demonstrate release/version history
+* do not require downstream package installation yet
 
 Later:
 
 * implement adapter for the organization's real registry
 
-Do not couple the rest of the application directly to Verdaccio.
+Do not couple the rest of the application directly to GitHub Packages.
+
+A conceptual boundary might look like:
+
+```text
+RegistryProvider
+      │
+      ├── GitHubPackagesRegistryProvider
+      ├── ArtifactoryRegistryProvider
+      ├── NexusRegistryProvider
+      └── NpmRegistryProvider
+```
+
+Only the GitHub Packages provider is needed for the prototype.
 
 ---
 
@@ -560,9 +710,13 @@ Preferred initial technologies:
 * Storybook
 * Node.js / NestJS if a backend becomes necessary
 * GitHub API / GitHub App
-* Changesets
-* npm-compatible registry
-* Verdaccio for local/prototype registry if required
+* GitHub Actions
+* GitHub Packages
+* independently versioned npm-compatible component packages
+
+Changesets or similar release tooling may be introduced later if it solves a concrete need. It is not required for the initial release model.
+
+For the prototype, a version change in a component's package metadata is sufficient release intent.
 
 Do not introduce infrastructure merely because it may eventually be useful.
 
@@ -587,10 +741,15 @@ It should support approximately this journey:
 9. Show the workspace as active on the component page.
 10. Allow the workspace component preview to appear in Storybook.
 11. Maintain independent package metadata/versioning.
+12. Merge a component version bump to `main`.
+13. Automatically publish that version to GitHub Packages.
+14. Display the resulting release/version history in Component Hub.
 
 If repository credentials or GitHub App setup would block the prototype, implement GitHub behind an interface and provide a local/mock implementation first.
 
 The UI/product flow is more important than production infrastructure in this phase.
+
+Actual consumption of the published npm package by another application is explicitly out of scope for this first slice.
 
 ---
 
@@ -639,6 +798,8 @@ Avoid premature implementation of:
 * automated Figma synchronization
 * complex visual regression systems
 * permanent component forks
+* downstream package installation flows
+* sophisticated automated version calculation
 
 Use existing systems whenever possible.
 
@@ -664,4 +825,3 @@ Then:
 Before making major architectural changes, keep the implementation understandable enough that another developer can inspect the repository and understand the model without reading large amounts of framework-specific code.
 
 The prototype should feel like the beginning of a product, not an infrastructure experiment.
-
