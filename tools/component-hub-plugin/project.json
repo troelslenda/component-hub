@@ -1,0 +1,51 @@
+{
+  "name": "component-hub-plugin",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "tools/component-hub-plugin/src",
+  "projectType": "library",
+  "tags": ["type:tooling", "scope:hub"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/tools/component-hub-plugin",
+        "main": "tools/component-hub-plugin/src/index.ts",
+        "tsConfig": "tools/component-hub-plugin/tsconfig.lib.json",
+        "assets": [
+          "tools/component-hub-plugin/*.md",
+          {
+            "input": "./tools/component-hub-plugin/src",
+            "glob": "**/!(*.ts)",
+            "output": "./src"
+          },
+          {
+            "input": "./tools/component-hub-plugin/src",
+            "glob": "**/*.d.ts",
+            "output": "./src"
+          },
+          {
+            "input": "./tools/component-hub-plugin",
+            "glob": "generators.json",
+            "output": "."
+          },
+          {
+            "input": "./tools/component-hub-plugin",
+            "glob": "executors.json",
+            "output": "."
+          }
+        ]
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "coverage/tools/component-hub-plugin"
+      }
+    }
+  }
+}

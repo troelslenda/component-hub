@@ -109,7 +109,36 @@ This project is currently experimental.
 
 The architecture, technical direction, current scope, and implementation guidance are documented in [`BUILD_INSTRUCTIONS.md`](./docs/BUILD_INSTRUCTIONS.md).
 
+### Local development
+
+Install dependencies and start the Angular Hub application:
+
+```bash
+npm install
+npm exec nx -- serve hub
+```
+
+Create a component through the Component Hub generator:
+
+```bash
+npm exec nx -- g @component-hub/plugin:component date-range-picker \
+  --displayName="Date Range Picker" \
+  --description="Select a start and end date." \
+  --owner=team-design-system \
+  --status=poc
+```
+
+The generated package is placed under `packages/components`, starts at the
+unreleased version `0.0.0`, and includes Component Hub metadata, tests, and an
+Autodocs-enabled Storybook showcase.
+
+Useful validation commands:
+
+```bash
+npm exec nx -- run-many -t build test lint --all
+npm exec nx -- build-storybook date-range-picker
+```
+
 ## License
 
 MIT
-

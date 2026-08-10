@@ -1,0 +1,10 @@
+{
+  "id": "date-range-picker",
+  "name": "Date Range Picker",
+  "packageName": "@organization/date-range-picker",
+  "status": "poc",
+  "owners": ["team-design-system"],
+  "description": "Select a start and end date.",
+  "figmaUrl": null,
+  "releaseState": "unreleased"
+}

@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "$id": "Component",
+  "title": "Create Component Hub component",
+  "description": "Creates a publishable Angular component package with Hub metadata and Storybook.",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Component identifier in kebab-case.",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What name would you like to use?"
+    },
+    "displayName": {
+      "type": "string",
+      "description": "Human-readable component name."
+    },
+    "description": {
+      "type": "string",
+      "description": "Short description shown in Component Hub.",
+      "default": ""
+    },
+    "owner": {
+      "type": "string",
+      "description": "Team or user responsible for the component.",
+      "x-prompt": "Who owns this component?"
+    },
+    "packageName": {
+      "type": "string",
+      "description": "Published npm package name. Defaults to @organization/<name>."
+    },
+    "status": {
+      "type": "string",
+      "description": "Initial component maturity.",
+      "enum": ["poc", "experimental", "beta", "production", "deprecated"],
+      "default": "poc"
+    }
+  },
+  "required": ["name", "owner"]
+}
