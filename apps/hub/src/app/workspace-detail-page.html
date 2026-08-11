@@ -1,0 +1,10 @@
+<main class="detail-main">
+  @if (workspace(); as item) {
+    @if (component(); as source) {
+      <a class="back-link" [routerLink]="['/components', source.id]">← {{ source.name }}</a>
+      <section class="detail-hero"><div><div class="detail-kicker"><span class="workspace-status">{{ item.status }}</span><span>Workspace</span></div><h1>{{ item.name }}</h1><p class="intro">{{ item.description || 'An isolated workspace for experimenting with ' + source.name + '.' }}</p></div><button class="primary-action" type="button">Build package</button></section>
+      <div class="workspace-dashboard"><section class="panel"><p class="eyebrow">Workspace preview</p><h2>Preview not built yet</h2><p class="panel-copy">Push changes to start a Storybook preview for this workspace.</p><button class="wide-action secondary" type="button">Build preview</button></section><section class="panel"><p class="eyebrow">Consumable artifact</p><h2>Package not built</h2><p class="panel-copy">Build a temporary package to test this workspace in another application.</p><button class="wide-action" type="button">Build package</button></section><aside class="panel metadata"><h2>Workspace details</h2><dl><div><dt>Source</dt><dd>{{ source.name }}</dd></div><div><dt>Branch</dt><dd>{{ item.branch }}</dd></div><div><dt>Status</dt><dd>{{ item.status }}</dd></div></dl></aside></div>
+    }
+  } @else if (workspaces.loading() || catalog.loading()) { <section class="not-found" role="status"><h1>Loading workspace…</h1></section> }
+  @else { <section class="not-found"><p class="eyebrow">404</p><h1>Workspace not found.</h1><p>{{ workspaces.error() }}</p><a routerLink="/components">Return to the catalog</a></section> }
+</main>

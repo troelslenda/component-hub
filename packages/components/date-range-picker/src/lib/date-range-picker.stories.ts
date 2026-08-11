@@ -11,4 +11,6 @@ export default meta;
 
 type Story = StoryObj<DateRangePicker>;
 
-export const Showcase: Story = {};
+export const Showcase: Story = {
+  parameters: {}
+};

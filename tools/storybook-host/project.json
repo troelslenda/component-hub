@@ -10,9 +10,11 @@
       "executor": "@nx/eslint:lint"
     },
     "storybook": {
+      "continuous": true,
       "executor": "@storybook/angular:start-storybook",
       "options": {
         "port": 4400,
+        "open": false,
         "configDir": "tools/storybook-host/.storybook",
         "browserTarget": "storybook-host:build-storybook",
         "compodoc": false

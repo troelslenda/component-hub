@@ -1,0 +1,24 @@
+<main>
+  <section class="hero" aria-labelledby="catalog-title">
+    <div><p class="eyebrow">Shared component ecosystem</p><h1 id="catalog-title">Build from what your team already knows.</h1><p class="intro">Discover components, understand their maturity, and find the right place to start experimenting.</p></div>
+    <button class="primary-action" type="button"><span aria-hidden="true">＋</span> Create component</button>
+  </section>
+  <section class="catalog" id="catalog" aria-label="Component catalog">
+    <div class="catalog-heading"><div><h2>Components</h2><p>{{ components().length }} building blocks across your organization</p></div><label class="search"><span aria-hidden="true">⌕</span><span class="sr-only">Search components</span><input type="search" placeholder="Search components" [value]="query()" (input)="updateQuery($event)" /></label></div>
+    <div class="filters" aria-label="Filter by maturity">
+      @for (filter of statuses; track filter) { <button type="button" [class.selected]="status() === filter" (click)="status.set(filter)">{{ filter === 'all' ? 'All components' : filter }}</button> }
+    </div>
+    @if (catalogService.loading()) { <div class="section-empty" role="status"><strong>Loading components…</strong></div> }
+    @else if (catalogService.error(); as error) { <div class="empty-state" role="alert"><h3>Catalog unavailable</h3><p>{{ error }}</p><button type="button" (click)="catalogService.load()">Try again</button></div> }
+    @else { <div class="component-grid">
+      @for (component of filteredComponents(); track component.id) {
+        <article class="component-card">
+          <div class="card-topline"><span class="component-icon" aria-hidden="true">{{ component.id === 'date-range-picker' ? '◫' : '◒' }}</span><span class="status"><i></i>{{ component.status }}</span></div>
+          <div class="card-copy"><h3><a [routerLink]="['/components', component.id]">{{ component.name }}</a></h3><p>{{ component.description }}</p></div>
+          <dl><div><dt>Package</dt><dd>{{ component.packageName }}</dd></div><div><dt>Owner</dt><dd>{{ component.owners.join(', ') }}</dd></div></dl>
+          <div class="card-footer"><span class="release-state"><i></i>{{ component.releaseState }} · {{ component.sourceVersion }}</span><span class="card-actions"><a [routerLink]="['/components', component.id]">View details →</a><a [href]="storybookUrl(component)" target="_blank" rel="noreferrer">Storybook ↗</a></span></div>
+        </article>
+      } @empty { <div class="empty-state"><h3>No components found</h3><p>Try another search or maturity filter.</p></div> }
+    </div> }
+  </section>
+</main>

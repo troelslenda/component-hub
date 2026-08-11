@@ -1,2 +1,8 @@
-<app-nx-welcome></app-nx-welcome>
-<router-outlet></router-outlet>
+<div class="shell">
+  <header class="topbar">
+    <a class="brand" routerLink="/components" aria-label="Component Hub home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>Component Hub</span></a>
+    <nav aria-label="Primary navigation"><a routerLink="/components" routerLinkActive="active">Components</a></nav>
+    <button class="avatar" type="button" aria-label="Open user menu">TL</button>
+  </header>
+  <router-outlet />
+</div>

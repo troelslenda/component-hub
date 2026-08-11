@@ -1,0 +1,8 @@
+<main class="flow-main">
+  @if (component(); as item) {
+    <a class="back-link" [routerLink]="['/components', item.id]">← {{ item.name }}</a>
+    <div class="flow-layout"><section><p class="eyebrow">New workspace</p><h1>Start with room to experiment.</h1><p class="intro">Create an isolated development effort for {{ item.name }}. Nothing here changes the canonical component until you choose to merge it.</p></section>
+      <form class="panel workspace-form" [formGroup]="form" (ngSubmit)="create()"><h2>Workspace details</h2><label>Workspace name<input formControlName="name" placeholder="Accessibility improvements" /></label><p class="field-hint">Branch: <code>workspace/{{ workspaceService.slugify(form.controls.name.value) || 'workspace-name' }}</code></p><label>Description <span>Optional</span><textarea formControlName="description" rows="4" placeholder="What are you exploring?"></textarea></label><div class="source-summary"><span>Source component</span><strong>{{ item.name }}</strong><code>{{ item.packageName }} · {{ item.sourceVersion }}</code></div>@if (workspaceService.error(); as error) { <p class="field-error" role="alert">{{ error }}</p> }<button class="wide-action" type="submit" [disabled]="form.invalid || workspaceService.creating()">{{ workspaceService.creating() ? 'Creating…' : 'Create workspace' }}</button></form>
+    </div>
+  } @else if (catalog.loading()) { <section class="not-found" role="status"><h1>Loading component…</h1></section> } @else { <section class="not-found"><h1>Component not found.</h1><p>{{ catalog.error() }}</p></section> }
+</main>

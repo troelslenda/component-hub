@@ -20,8 +20,20 @@
       "@organization/date-range-picker": [
         "./packages/components/date-range-picker/src/index.ts"
       ],
+      "@organization/date-range-picker/metadata": [
+        "./packages/components/date-range-picker/component.json"
+      ],
+      "@organization/date-range-picker/package": [
+        "./packages/components/date-range-picker/package.json"
+      ],
       "@organization/notification-banner": [
         "./packages/components/notification-banner/src/index.ts"
+      ],
+      "@organization/notification-banner/metadata": [
+        "./packages/components/notification-banner/component.json"
+      ],
+      "@organization/notification-banner/package": [
+        "./packages/components/notification-banner/package.json"
       ]
     }
   },

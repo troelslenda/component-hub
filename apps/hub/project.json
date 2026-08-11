@@ -4,16 +4,11 @@
   "projectType": "application",
   "prefix": "app",
   "sourceRoot": "apps/hub/src",
-  "tags": [
-    "type:app",
-    "scope:hub"
-  ],
+  "tags": ["type:app", "scope:hub"],
   "targets": {
     "build": {
       "executor": "@angular/build:application",
-      "outputs": [
-        "{options.outputPath}"
-      ],
+      "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
         "outputPath": "dist/apps/hub",
@@ -26,9 +21,7 @@
             "input": "apps/hub/public"
           }
         ],
-        "styles": [
-          "apps/hub/src/styles.scss"
-        ]
+        "styles": ["apps/hub/src/styles.scss", "apps/hub/src/app/app.scss"]
       },
       "configurations": {
         "production": {
@@ -64,6 +57,10 @@
         "development": {
           "buildTarget": "hub:build:development"
         }
+      },
+      "dependsOn": ["api:serve"],
+      "options": {
+        "proxyConfig": "apps/hub/proxy.conf.json"
       }
     },
     "lint": {

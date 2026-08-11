@@ -1,0 +1,24 @@
+<main class="detail-main">
+  @if (component(); as item) {
+    <a class="back-link" routerLink="/components">← All components</a>
+    <section class="detail-hero">
+      <div><div class="detail-kicker"><span class="status"><i></i>{{ item.status }}</span><span>{{ item.releaseState }}</span></div><h1>{{ item.name }}</h1><p class="intro">{{ item.description }}</p></div>
+      <a class="primary-action" [routerLink]="['/components', item.id, 'workspaces', 'new']"><span aria-hidden="true">＋</span> Create workspace</a>
+    </section>
+    <div class="detail-layout">
+      <div class="detail-content">
+        <section class="panel showcase"><div class="section-heading"><div><p class="eyebrow">Live preview</p><h2>Showcase</h2></div><a [href]="storybookUrl(item)" target="_blank" rel="noreferrer">Open Storybook ↗</a></div><div class="storybook-frame"><iframe [src]="embedUrl()" [title]="item.name + ' Storybook showcase'"></iframe></div><p class="preview-help">Preview unavailable? Start <code>npm exec nx -- storybook storybook-host</code>, then reload this page.</p></section>
+        <section class="panel"><div class="section-heading"><div><p class="eyebrow">Development</p><h2>Active workspaces</h2></div><a class="text-action" [routerLink]="['/components', item.id, 'workspaces', 'new']">Create workspace</a></div>
+          @if (workspaces.loading()) { <div class="section-empty" role="status"><strong>Loading workspaces…</strong></div> }
+          @else if (workspaces.error(); as error) { <div class="section-empty" role="alert"><strong>Workspaces unavailable</strong><p>{{ error }}</p></div> }
+          @else { @for (workspace of componentWorkspaces(); track workspace.branch) { <a class="workspace-row" [routerLink]="['/components', item.id, 'workspaces', workspace.id]"><span class="workspace-icon">⑂</span><div><strong>{{ workspace.name }}</strong><code>{{ workspace.branch }}</code></div><span class="workspace-status">{{ workspace.status }}</span><span>→</span></a> } @empty { <div class="section-empty"><strong>No active workspaces</strong><p>Create one to experiment without changing the canonical component.</p></div> } }
+        </section>
+        <section class="panel"><div class="section-heading"><div><p class="eyebrow">Immutable history</p><h2>Releases</h2></div></div>
+          @for (release of item.releases; track release.version) { <div class="release-row"><strong>{{ release.version }}</strong><time>{{ release.date }}</time></div> } @empty { <div class="section-empty"><strong>This component has not been released</strong><p>Its source version is {{ item.sourceVersion }}. Workspace packages can still be built for testing.</p></div> }
+        </section>
+      </div>
+      <aside class="panel metadata"><h2>Component details</h2><dl><div><dt>Package</dt><dd>{{ item.packageName }}</dd></div><div><dt>Source version</dt><dd>{{ item.sourceVersion }}</dd></div><div><dt>Owner</dt><dd>{{ item.owners.join(', ') }}</dd></div><div><dt>Source</dt><dd>{{ item.repositoryPath }}</dd></div><div><dt>Figma</dt><dd>{{ item.figmaUrl || 'Not connected' }}</dd></div></dl><a class="wide-action" [href]="storybookUrl(item)" target="_blank">Open Storybook ↗</a><button class="wide-action secondary" type="button">View source ↗</button></aside>
+    </div>
+  } @else if (catalog.loading()) { <section class="not-found" role="status"><h1>Loading component…</h1></section> }
+  @else { <section class="not-found"><p class="eyebrow">404</p><h1>Component not found.</h1><p>{{ catalog.error() }}</p><a routerLink="/components">Return to the catalog</a></section> }
+</main>
