@@ -1,0 +1,21 @@
+{
+  "name": "workspace-cli",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "tools/workspace-cli/src",
+  "projectType": "application",
+  "tags": ["type:tooling", "scope:hub"],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/tools/workspace-cli"],
+      "options": {
+        "command": "tsc -p tools/workspace-cli/tsconfig.app.json"
+      }
+    },
+    "test": {
+      "options": {
+        "passWithNoTests": true
+      }
+    }
+  }
+}

@@ -24,17 +24,27 @@ export class WorkspaceService {
   readonly error = signal<string | null>(null);
 
   forComponent(componentId: string): ComponentWorkspace[] {
-    return this.state().filter((workspace) => workspace.componentId === componentId);
+    return this.state().filter(
+      (workspace) => workspace.componentId === componentId,
+    );
   }
 
   load(componentId: string): void {
     this.loading.set(true);
     this.error.set(null);
-    this.http.get<{ workspaces: ComponentWorkspace[] }>(`/api/components/${encodeURIComponent(componentId)}/workspaces`)
+    this.http
+      .get<{ workspaces: ComponentWorkspace[] }>(
+        `/api/components/${encodeURIComponent(componentId)}/workspaces`,
+      )
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: ({ workspaces }) => this.state.update((items) => [...items.filter((item) => item.componentId !== componentId), ...workspaces]),
-        error: () => this.error.set('Workspaces could not be loaded. Please try again.'),
+        next: ({ workspaces }) =>
+          this.state.update((items) => [
+            ...items.filter((item) => item.componentId !== componentId),
+            ...workspaces,
+          ]),
+        error: () =>
+          this.error.set('Workspaces could not be loaded. Please try again.'),
       });
   }
 
@@ -42,21 +52,41 @@ export class WorkspaceService {
     return this.state().find((workspace) => workspace.id === id);
   }
 
-  create(componentId: string, name: string, description: string, onSuccess: (workspace: ComponentWorkspace) => void): void {
+  create(
+    componentId: string,
+    name: string,
+    description: string,
+    onSuccess: (workspace: ComponentWorkspace) => void,
+  ): void {
     this.creating.set(true);
     this.error.set(null);
-    this.http.post<{ workspace: ComponentWorkspace }>(`/api/components/${encodeURIComponent(componentId)}/workspaces`, { name, description })
+    this.http
+      .post<{ workspace: ComponentWorkspace }>(
+        `/api/components/${encodeURIComponent(componentId)}/workspaces`,
+        { name, description },
+      )
       .pipe(finalize(() => this.creating.set(false)))
       .subscribe({
         next: ({ workspace }) => {
-          this.state.update((items) => [...items.filter((item) => item.id !== workspace.id), workspace]);
+          this.state.update((items) => [
+            ...items.filter((item) => item.id !== workspace.id),
+            workspace,
+          ]);
           onSuccess(workspace);
         },
-        error: (error: HttpErrorResponse) => this.error.set(error.error?.message ?? 'The workspace could not be created. Please try again.'),
+        error: (error: HttpErrorResponse) =>
+          this.error.set(
+            error.error?.message ??
+              'The workspace could not be created. Please try again.',
+          ),
       });
   }
 
   slugify(value: string): string {
-    return value.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    return value
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
   }
 }

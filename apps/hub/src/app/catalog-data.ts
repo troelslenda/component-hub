@@ -1,4 +1,9 @@
-export type ComponentStatus = 'poc' | 'experimental' | 'beta' | 'production' | 'deprecated';
+export type ComponentStatus =
+  | 'poc'
+  | 'experimental'
+  | 'beta'
+  | 'production'
+  | 'deprecated';
 
 export interface CatalogComponent {
   id: string;

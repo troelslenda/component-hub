@@ -1,6 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from '@angular/common/http/testing';
 import { CatalogService } from './catalog.service';
 import { WorkspaceService } from './workspace.service';
 import { CatalogComponent } from './catalog-data';
@@ -9,7 +12,9 @@ describe('Component Hub services', () => {
   let http: HttpTestingController;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
     http = TestBed.inject(HttpTestingController);
   });
 
@@ -26,7 +31,9 @@ describe('Component Hub services', () => {
     catalog.load();
     http.expectOne('/api/components').flush({ components: [component] });
 
-    expect(catalog.getById('date-range-picker')?.name).toBe('Date Range Picker');
+    expect(catalog.getById('date-range-picker')?.name).toBe(
+      'Date Range Picker',
+    );
     expect(catalog.loading()).toBe(false);
   });
 
@@ -43,13 +50,25 @@ describe('Component Hub services', () => {
     };
 
     workspaces.load('notification-banner');
-    http.expectOne('/api/components/notification-banner/workspaces').flush({ workspaces: [] });
+    http
+      .expectOne('/api/components/notification-banner/workspaces')
+      .flush({ workspaces: [] });
 
     let createdId = '';
-    workspaces.create('notification-banner', workspace.name, workspace.description, (created) => createdId = created.id);
-    const request = http.expectOne('/api/components/notification-banner/workspaces');
+    workspaces.create(
+      'notification-banner',
+      workspace.name,
+      workspace.description,
+      (created) => (createdId = created.id),
+    );
+    const request = http.expectOne(
+      '/api/components/notification-banner/workspaces',
+    );
     expect(request.request.method).toBe('POST');
-    expect(request.request.body).toEqual({ name: workspace.name, description: workspace.description });
+    expect(request.request.body).toEqual({
+      name: workspace.name,
+      description: workspace.description,
+    });
     request.flush({ workspace });
 
     expect(createdId).toBe('accessible-alerts');

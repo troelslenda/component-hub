@@ -5,6 +5,7 @@
   "packageManager": "npm@11.16.0",
   "scripts": {
     "nx": "nx",
+    "workspace": "nx run workspace-cli:build --skipNxCache && node dist/tools/workspace-cli/main.js",
     "dev": "nx run-many -t serve,storybook -p hub,api,storybook-host --parallel=3",
     "build": "nx run-many -t build",
     "test": "nx run-many -t test",
